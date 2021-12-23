@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { WEBGL } from './WebGL';
 import * as Ammo from './builds/ammo';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
 import {
   billboardTextures,
   boxTexture,
@@ -172,6 +174,16 @@ Ammo().then((Ammo) => {
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 3;
 
+  //   loader.load('./src/jsm/GreenHodly/Greenfbx.fbx', function(fbx){
+  //     const geometry = fbx.scene.children[0].geometry;
+  //     geometry.computeVertexNormals(false);
+
+  //     let mesh = new THREE.Mesh(geometry, buildTwistMaterial(100));
+  //     mesh.position.x = 0;
+  //     mesh.position.y = 0;
+  //     scene.add(mesh);
+  //   });
+
     var marble_loader = new THREE.TextureLoader(manager);
     var marbleTexture = marble_loader.load('./src/jsm/earth.jpg');
     marbleTexture.wrapS = marbleTexture.wrapT = THREE.RepeatWrapping;
@@ -234,6 +246,60 @@ Ammo().then((Ammo) => {
 
     rigidBodies.push(ball);
     rigidBodies.push(ballObject);
+  }
+
+  //create animation
+  function createAnim()
+  {
+    let pos = { x: 20, y: 30, z: 0 };
+    let radius = 2;
+    let quat = { x: 0, y: 0, z: 0, w: 1 };
+    let mass = 20;
+
+    const loader = new FBXLoader();
+    loader.setPath('./src/jsm/GreenHodly/');
+    loader.load('Greenfbx.fbx', (fbx) => {
+      fbx.scale.setScalar(0.01);
+      fbx.traverse(c => {
+        c.castShadow = true;
+      });
+      
+      //threeJS Section
+    
+    scene.add(fbx);
+
+      //Ammojs Section
+    let transform = new Ammo.btTransform();
+    transform.setIdentity();
+    transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
+    transform.setRotation(
+      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
+    );
+    let motionState = new Ammo.btDefaultMotionState(transform);
+
+    let colShape = new Ammo.btSphereShape(radius);
+    colShape.setMargin(0.01);
+
+    let localInertia = new Ammo.btVector3(0, 0, 0);
+    colShape.calculateLocalInertia(mass, localInertia);
+
+    let rbInfo = new Ammo.btRigidBodyConstructionInfo(
+      mass,
+      motionState,
+      colShape,
+      localInertia
+    );
+    let body = new Ammo.btRigidBody(rbInfo);
+
+    body.setRollingFriction(1);
+    physicsWorld.addRigidBody(body);
+
+    fbx.userData.physicsBody = body;
+    rigidBodies.push(fbx);
+    
+    });
+
+    
   }
 
   //create beach ball Mesh
@@ -969,6 +1035,7 @@ Ammo().then((Ammo) => {
     document.addEventListener('click', launchClickPosition);
     createBeachBall();
     createGalaxyBall();
+    createAnim();
 
     setTimeout(() => {
       document.addEventListener('mousemove', launchHover);
