@@ -174,40 +174,21 @@ Ammo().then((Ammo) => {
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 3;
 
-  //   loader.load('./src/jsm/GreenHodly/Greenfbx.fbx', function(fbx){
-  //     const geometry = fbx.scene.children[0].geometry;
-  //     geometry.computeVertexNormals(false);
+    const loader = new FBXLoader();
+    loader.setPath('./src/jsm/GreenHodly/');
+    loader.load('Greenfbx.fbx', (fbx) => {
+      fbx.scale.setScalar(0.01);
+      fbx.traverse(c => {
+        
+        c.castShadow = true;
+        c.receiveShadow = true;
+      });
+      
+      //threeJS Section
+    
+    scene.add(fbx);
 
-  //     let mesh = new THREE.Mesh(geometry, buildTwistMaterial(100));
-  //     mesh.position.x = 0;
-  //     mesh.position.y = 0;
-  //     scene.add(mesh);
-  //   });
-
-    var marble_loader = new THREE.TextureLoader(manager);
-    var marbleTexture = marble_loader.load('./src/jsm/earth.jpg');
-    marbleTexture.wrapS = marbleTexture.wrapT = THREE.RepeatWrapping;
-    marbleTexture.repeat.set(1, 1);
-    marbleTexture.anisotropy = 1;
-    marbleTexture.encoding = THREE.sRGBEncoding;
-
-    //threeJS Section
-    let ball = (ballObject = new THREE.Mesh(
-      new THREE.SphereGeometry(radius, 32, 32),
-      new THREE.MeshLambertMaterial({ map: marbleTexture })
-    ));
-
-    ball.geometry.computeBoundingSphere();
-    ball.geometry.computeBoundingBox();
-
-    ball.position.set(pos.x, pos.y, pos.z);
-
-    ball.castShadow = true;
-    ball.receiveShadow = true;
-
-    scene.add(ball);
-
-    //Ammojs Section
+      //Ammojs Section
     let transform = new Ammo.btTransform();
     transform.setIdentity();
     transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
@@ -241,66 +222,69 @@ Ammo().then((Ammo) => {
       body //collisionGroupRedBall, collisionGroupGreenBall | collisionGroupPlane
     );
 
-    ball.userData.physicsBody = body;
-    ballObject.userData.physicsBody = body;
+    fbx.userData.physicsBody = body;
+    c.userData.physicsBody = body;
 
-    rigidBodies.push(ball);
-    rigidBodies.push(ballObject);
+    rigidBodies.push(fbx);
+    rigidBodies.push(c);
   }
 
   //create animation
-  function createAnim()
-  {
-    let pos = { x: 20, y: 30, z: 0 };
-    let radius = 2;
-    let quat = { x: 0, y: 0, z: 0, w: 1 };
-    let mass = 20;
+  // function createAnim()
+  // {
+  //   let pos = { x: 20, y: 30, z: 0 };
+  //   let radius = 2;
+  //   let quat = { x: 0, y: 0, z: 0, w: 1 };
+  //   let mass = 20;
 
-    const loader = new FBXLoader();
-    loader.setPath('./src/jsm/GreenHodly/');
-    loader.load('Greenfbx.fbx', (fbx) => {
-      fbx.scale.setScalar(0.01);
-      fbx.traverse(c => {
-        c.castShadow = true;
-      });
+  //   const loader = new FBXLoader();
+  //   loader.setPath('./src/jsm/GreenHodly/');
+  //   loader.load('Greenfbx.fbx', (fbx) => {
+  //     fbx.scale.setScalar(0.01);
+  //     fbx.traverse(c => {
+        
+  //       c.castShadow = true;
+  //       c.receiveShadow = true;
+  //     });
       
-      //threeJS Section
+  //     //threeJS Section
     
-    scene.add(fbx);
+  //   scene.add(fbx);
 
-      //Ammojs Section
-    let transform = new Ammo.btTransform();
-    transform.setIdentity();
-    transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
-    transform.setRotation(
-      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
-    );
-    let motionState = new Ammo.btDefaultMotionState(transform);
+  //     //Ammojs Section
+  //   let transform = new Ammo.btTransform();
+  //   transform.setIdentity();
+  //   transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
+  //   transform.setRotation(
+  //     new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
+  //   );
+  //   let motionState = new Ammo.btDefaultMotionState(transform);
 
-    let colShape = new Ammo.btSphereShape(radius);
-    colShape.setMargin(0.01);
+  //   let colShape = new Ammo.btSphereShape(radius);
+  //   colShape.setMargin(0.05);
 
-    let localInertia = new Ammo.btVector3(0, 0, 0);
-    colShape.calculateLocalInertia(mass, localInertia);
+  //   let localInertia = new Ammo.btVector3(0, 0, 0);
+  //   colShape.calculateLocalInertia(mass, localInertia);
 
-    let rbInfo = new Ammo.btRigidBodyConstructionInfo(
-      mass,
-      motionState,
-      colShape,
-      localInertia
-    );
-    let body = new Ammo.btRigidBody(rbInfo);
+  //   let rbInfo = new Ammo.btRigidBodyConstructionInfo(
+  //     mass,
+  //     motionState,
+  //     colShape,
+  //     localInertia
+  //   );
+  //   let body = new Ammo.btRigidBody(rbInfo);
 
-    body.setRollingFriction(1);
-    physicsWorld.addRigidBody(body);
+  //   body.setRollingFriction(1);
+  //   physicsWorld.addRigidBody(body);
 
-    fbx.userData.physicsBody = body;
-    rigidBodies.push(fbx);
-    
-    });
+  //   fbx.userData.physicsBody = body;
+  //   rigidBodies.push(fbx);
 
     
-  }
+  //   });
+
+    
+  // }
 
   //create beach ball Mesh
   function createBeachBall() {
@@ -969,7 +953,7 @@ Ammo().then((Ammo) => {
     let moveZ = moveDirection.back - moveDirection.forward;
     let moveY = 0;
 
-    if (ballObject.position.y < 2.01) {
+    if (fbx.position.y < 2.01) {
       moveX = moveDirection.right - moveDirection.left;
       moveZ = moveDirection.back - moveDirection.forward;
       moveY = 0;
@@ -984,7 +968,7 @@ Ammo().then((Ammo) => {
 
     let resultantImpulse = new Ammo.btVector3(moveX, moveY, moveZ);
     resultantImpulse.op_mul(scalingFactor);
-    let physicsBody = ballObject.userData.physicsBody;
+    let physicsBody = fbx.userData.physicsBody;
     physicsBody.setLinearVelocity(resultantImpulse);
   }
 
@@ -1061,13 +1045,13 @@ Ammo().then((Ammo) => {
     }
 
     //check to see if ball escaped the plane
-    if (ballObject.position.y < -50) {
-      scene.remove(ballObject);
+    if (fbx.position.y < -50) {
+      scene.remove(fbx);
       createBall();
     }
 
     //check to see if ball is on text to rotate camera
-    rotateCamera(ballObject);
+    rotateCamera(fbx);
   }
 
   //document loading
