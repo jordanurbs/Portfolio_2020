@@ -182,13 +182,27 @@ Ammo().then((Ammo) => {
         
         c.castShadow = true;
         c.receiveShadow = true;
-      });
       
-      //threeJS Section
-    
-    scene.add(fbx);
+      });
+      scene.add(fbx);
+      });
+    //threeJS Section
+    let ball = (ballObject = new THREE.Mesh(
+      new THREE.SphereGeometry(radius, 32, 32)
+      
+    ));
 
-      //Ammojs Section
+    ball.geometry.computeBoundingSphere();
+    ball.geometry.computeBoundingBox();
+
+    ball.position.set(pos.x, pos.y, pos.z);
+
+    ball.castShadow = true;
+    ball.receiveShadow = true;
+
+    scene.add(ball);
+
+    //Ammojs Section
     let transform = new Ammo.btTransform();
     transform.setIdentity();
     transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
@@ -222,11 +236,12 @@ Ammo().then((Ammo) => {
       body //collisionGroupRedBall, collisionGroupGreenBall | collisionGroupPlane
     );
 
-    fbx.userData.physicsBody = body;
-    c.userData.physicsBody = body;
+    ball.userData.physicsBody = body;
+    ballObject.userData.physicsBody = body;
 
-    rigidBodies.push(fbx);
-    rigidBodies.push(c);
+
+    rigidBodies.push(ball);
+    rigidBodies.push(ballObject);
   }
 
   //create animation
@@ -953,7 +968,7 @@ Ammo().then((Ammo) => {
     let moveZ = moveDirection.back - moveDirection.forward;
     let moveY = 0;
 
-    if (fbx.position.y < 2.01) {
+    if (ballObject.position.y < 2.01) {
       moveX = moveDirection.right - moveDirection.left;
       moveZ = moveDirection.back - moveDirection.forward;
       moveY = 0;
@@ -968,7 +983,7 @@ Ammo().then((Ammo) => {
 
     let resultantImpulse = new Ammo.btVector3(moveX, moveY, moveZ);
     resultantImpulse.op_mul(scalingFactor);
-    let physicsBody = fbx.userData.physicsBody;
+    let physicsBody = ballObject.userData.physicsBody;
     physicsBody.setLinearVelocity(resultantImpulse);
   }
 
@@ -1045,13 +1060,13 @@ Ammo().then((Ammo) => {
     }
 
     //check to see if ball escaped the plane
-    if (fbx.position.y < -50) {
-      scene.remove(fbx);
+    if (ballObject.position.y < -50) {
+      scene.remove(ballObject);
       createBall();
     }
 
     //check to see if ball is on text to rotate camera
-    rotateCamera(fbx);
+    rotateCamera(ballObject);
   }
 
   //document loading
