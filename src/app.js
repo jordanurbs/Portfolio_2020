@@ -173,29 +173,26 @@ Ammo().then((Ammo) => {
     let radius = 2;
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 3;
+ 
 
-    const loader = new FBXLoader();
+    const loader = new GLTFLoader();
     loader.setPath('./src/jsm/GreenHodly/');
-    loader.load('Greenfbx.fbx', (fbx) => {
-      fbx.scale.setScalar(0.01);
-      fbx.traverse(c => {
-        
-        c.castShadow = true;
-        c.receiveShadow = true;
-      
-      });
-      scene.add(fbx);
+    let ball = loader.load('Greenglb.glb', (gltf) => {
+      var ballObject = new gltf.scene;
+      ballObject.position.set( 0, 0, 0 );
+      ballObject.scale.set(1, 1, 1 );
+      scene.add(ballObject);
       });
     //threeJS Section
-    let ball = (ballObject = new THREE.Mesh(
-      new THREE.SphereGeometry(radius, 32, 32)
-      
-    ));
+    // let ball = (ballObject = new THREE.Mesh(
+    //   new THREE.SphereGeometry(radius, 32, 32),
+    //   new THREE.MeshDepthMaterial({})
+    // ));
 
     ball.geometry.computeBoundingSphere();
     ball.geometry.computeBoundingBox();
 
-    ball.position.set(pos.x, pos.y, pos.z);
+    
 
     ball.castShadow = true;
     ball.receiveShadow = true;
@@ -238,68 +235,68 @@ Ammo().then((Ammo) => {
 
     ball.userData.physicsBody = body;
     ballObject.userData.physicsBody = body;
-
+  
 
     rigidBodies.push(ball);
     rigidBodies.push(ballObject);
   }
 
   //create animation
-  // function createAnim()
-  // {
-  //   let pos = { x: 20, y: 30, z: 0 };
-  //   let radius = 2;
-  //   let quat = { x: 0, y: 0, z: 0, w: 1 };
-  //   let mass = 20;
+  function createAnim()
+  {
+    let pos = { x: 20, y: 30, z: 0 };
+    let radius = 2;
+    let quat = { x: 0, y: 0, z: 0, w: 1 };
+    let mass = 20;
 
-  //   const loader = new FBXLoader();
-  //   loader.setPath('./src/jsm/GreenHodly/');
-  //   loader.load('Greenfbx.fbx', (fbx) => {
-  //     fbx.scale.setScalar(0.01);
-  //     fbx.traverse(c => {
-        
-  //       c.castShadow = true;
-  //       c.receiveShadow = true;
-  //     });
+    
+    const loader = new GLTFLoader();
+    loader.setPath('./src/jsm/GreenHodly/');
+    loader.load('Greenglb.glb', (gltf) => {
+      var greenhodly = gltf.scene;
+      greenhodly.position.set(20, 30, 0 );
+      greenhodly.scale.set(1, 1, 1 );
+      scene.add(greenhodly);
       
-  //     //threeJS Section
+      
+      //threeJS Section
     
-  //   scene.add(fbx);
-
-  //     //Ammojs Section
-  //   let transform = new Ammo.btTransform();
-  //   transform.setIdentity();
-  //   transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
-  //   transform.setRotation(
-  //     new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
-  //   );
-  //   let motionState = new Ammo.btDefaultMotionState(transform);
-
-  //   let colShape = new Ammo.btSphereShape(radius);
-  //   colShape.setMargin(0.05);
-
-  //   let localInertia = new Ammo.btVector3(0, 0, 0);
-  //   colShape.calculateLocalInertia(mass, localInertia);
-
-  //   let rbInfo = new Ammo.btRigidBodyConstructionInfo(
-  //     mass,
-  //     motionState,
-  //     colShape,
-  //     localInertia
-  //   );
-  //   let body = new Ammo.btRigidBody(rbInfo);
-
-  //   body.setRollingFriction(1);
-  //   physicsWorld.addRigidBody(body);
-
-  //   fbx.userData.physicsBody = body;
-  //   rigidBodies.push(fbx);
-
     
-  //   });
+
+      //Ammojs Section
+    let transform = new Ammo.btTransform();
+    transform.setIdentity();
+    transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
+    transform.setRotation(
+      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
+    );
+    let motionState = new Ammo.btDefaultMotionState(transform);
+
+    let colShape = new Ammo.btSphereShape(radius);
+    colShape.setMargin(0.05);
+
+    let localInertia = new Ammo.btVector3(0, 0, 0);
+    colShape.calculateLocalInertia(mass, localInertia);
+
+    let rbInfo = new Ammo.btRigidBodyConstructionInfo(
+      mass,
+      motionState,
+      colShape,
+      localInertia
+    );
+    let body = new Ammo.btRigidBody(rbInfo);
+
+    body.setRollingFriction(1);
+    physicsWorld.addRigidBody(body);
+
+    greenhodly.userData.physicsBody = body;
+    rigidBodies.push(greenhodly);
 
     
-  // }
+    });
+
+    
+  }
 
   //create beach ball Mesh
   function createBeachBall() {
