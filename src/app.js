@@ -77,6 +77,7 @@ Ammo().then((Ammo) => {
 
   //Ammo Dynamic bodies for ball
   let ballObject = null;
+  let ballObject2 = null;
   const STATE = { DISABLE_DEACTIVATION: 4 };
 
   //default transform object
@@ -173,31 +174,21 @@ Ammo().then((Ammo) => {
     let radius = 2;
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 3;
- 
+    
 
     const loader = new GLTFLoader();
     loader.setPath('./src/jsm/GreenHodly/');
-    let ball = loader.load('Greenglb.glb', (gltf) => {
-      var ballObject = new gltf.scene;
-      ballObject.position.set( 0, 0, 0 );
-      ballObject.scale.set(1, 1, 1 );
-      scene.add(ballObject);
-      });
-    //threeJS Section
-    // let ball = (ballObject = new THREE.Mesh(
-    //   new THREE.SphereGeometry(radius, 32, 32),
-    //   new THREE.MeshDepthMaterial({})
-    // ));
+    loader.load('Greenglb.glb', (ballObject) => {
+      var gltf_scene = ballObject.scene;
+      gltf_scene.position.set( pos.x, pos.y, pos.z );
+      gltf_scene.scale.set(1, 1, 1 );
+      
 
-    ball.geometry.computeBoundingSphere();
-    ball.geometry.computeBoundingBox();
-
+      gltf_scene.castShadow = true;
+    gltf_scene.receiveShadow = true;
     
+    scene.add(gltf_scene);
 
-    ball.castShadow = true;
-    ball.receiveShadow = true;
-
-    scene.add(ball);
 
     //Ammojs Section
     let transform = new Ammo.btTransform();
@@ -233,12 +224,24 @@ Ammo().then((Ammo) => {
       body //collisionGroupRedBall, collisionGroupGreenBall | collisionGroupPlane
     );
 
-    ball.userData.physicsBody = body;
-    ballObject.userData.physicsBody = body;
+    gltf_scene.userData.physicsBody = body;
   
 
-    rigidBodies.push(ball);
-    rigidBodies.push(ballObject);
+    rigidBodies.push(gltf_scene);
+      });
+    //threeJS Section
+    
+
+    // let ball = (ballObject = new THREE.Mesh(
+    //    new THREE.SphereGeometry(radius, 32, 32),
+    //    new THREE.MeshDepthMaterial({})
+    //  ));
+
+    // ball.geometry.computeBoundingSphere();
+    // ball.geometry.computeBoundingBox();
+    
+
+    
   }
 
   //create animation
@@ -259,9 +262,7 @@ Ammo().then((Ammo) => {
       scene.add(greenhodly);
       
       
-      //threeJS Section
-    
-    
+      //threeJS Section 
 
       //Ammojs Section
     let transform = new Ammo.btTransform();
