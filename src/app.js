@@ -90,8 +90,10 @@ Ammo().then((Ammo) => {
   // greenhodly global
   let greenhodly = null;
   let model;
+  let model2;
   let gltf_scene;
   var mixer;
+  var action;
   
   
   
@@ -185,62 +187,63 @@ Ammo().then((Ammo) => {
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 3;
     
-    const controls = new OrbitControls( camera, renderer.domElement );
-    controls.update();
-    const loader = new GLTFLoader();
-    loader.setPath('./src/jsm/GreenHodly/');
-    loader.load('Greenglb2.glb', (gltf) => {
+    // const controls = new OrbitControls( camera, renderer.domElement );
+    // controls.update();
+    // const loader = new GLTFLoader();
+    // loader.setPath('./src/jsm/GreenHodly/');
+    // loader.load('Greenglb2.glb', (gltf) => {
       
-      gltf_scene = gltf.scene;
-      // var action = mixer.clipAction( gltf.animations[ 0 ] );
-      // console.log( action );
-       gltf_scene.traverse( child=>  {
+    //   gltf_scene = gltf.scene;
+    //   // var action = mixer.clipAction( gltf.animations[ 0 ] );
+    //   // console.log( action );
+    //    gltf_scene.traverse( child=>  {
 
-        if ( child instanceof THREE.Mesh ) {
+    //     if ( child instanceof THREE.Mesh ) {
 
-            child.geometry.computeBoundingBox()
-            child.castShadow = true;
-            child.receiveShadow = true;
+    //         child.geometry.computeBoundingBox()
+    //         child.castShadow = true;
+    //         child.receiveShadow = true;
             
 
-        } 
-      });  
-      gltf_scene.scale.set(6,6,6);
-      gltf_scene.position.set( pos.x, pos.y, pos.z );
+    //     } 
+    //   });  
+    //   gltf_scene.scale.set(6,6,6);
+    //   gltf_scene.position.set( pos.x, pos.y, pos.z );
       // scene.add(gltf_scene);
       // console.log(gltf);
       
     
     const anim = new GLTFLoader();
-    loader.setPath('./src/jsm/GreenHodly/');
-    loader.load('GreenHodlyWalking.glb', (anim) => {
+    anim.setPath('./src/jsm/GreenHodly/');
+    anim.load('GreenHodlyWalking.glb', (anim) => {
       model = anim.scene;
       model.traverse( child=>  {
         if ( child instanceof THREE.Mesh ) {
 
-            child.geometry.computeBoundingBox()
+            child.geometry.computeBoundingBox();
+            child.geometry.computeBoundingSphere();
             child.castShadow = true;
             child.receiveShadow = true;
         } 
       });
-      model.scale.set(6,6,6);
+      model.scale.set(1,1,1);
       model.position.set(pos.x,pos.y,pos.z);
       scene.add(model);
       mixer = new THREE.AnimationMixer(model);
       const clips = anim.animations;
       const clip = THREE.AnimationClip.findByName(clips,'Walk');
-      const action = mixer.clipAction(clip);
+      action = mixer.clipAction(clip);
       action.play();
-      // console.log(clips);
-      
+       // console.log(clips);
+    
     });
      // action.play();
     // rotateCamera(gltf_scene);
     
     // gltf_scene.traverse((o)=> {console.log(o.name);}) 
-    });
+    // });
 
-
+    
 
     //threeJS Section
     
@@ -259,7 +262,7 @@ Ammo().then((Ammo) => {
     // scene.add(ball);
 
 
-    // //Ammojs Section
+    //Ammojs Section
     // let transform = new Ammo.btTransform();
     // transform.setIdentity();
     // transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
@@ -293,12 +296,12 @@ Ammo().then((Ammo) => {
     //   body //collisionGroupRedBall, collisionGroupGreenBall | collisionGroupPlane
     // );
 
-    // ball.userData.physicsBody = body;
-    // ballObject.userData.physicsBody = body;
+    // model.userData.physicsBody = body;
+    // // ballObject.userData.physicsBody = body;
   
 
-    // rigidBodies.push(ball);
-    // rigidBodies.push(ballObject);
+    // // rigidBodies.push(ball);
+    // rigidBodies.push(model);
     
   }
 
@@ -313,7 +316,7 @@ Ammo().then((Ammo) => {
     
     const loader = new GLTFLoader();
     loader.setPath('./src/jsm/GreenHodly/');
-    loader.load('Greenglb.glb', (gltf) => {
+    loader.load('Greenglb2.glb', (gltf) => {
       greenhodly = gltf.scene;
       greenhodly.position.set(20, 30, 0 );
       greenhodly.scale.set(1, 1, 1 );
@@ -1018,6 +1021,7 @@ Ammo().then((Ammo) => {
   }
 
   function moveBall() {
+
     let scalingFactor = 20;
     let moveX = moveDirection.right - moveDirection.left;
     let moveZ = moveDirection.back - moveDirection.forward;
@@ -1033,14 +1037,19 @@ Ammo().then((Ammo) => {
         moveZ = moveDirection.back - moveDirection.forward;
         moveY = -0.25;
       }
-  }
 
+  }
+  
     // no movement
     if (moveX == 0 && moveY == 0 && moveZ == 0) return;
    
+    model.position.x += moveX;
+    model.position.z += moveZ;
+
     // let resultantImpulse = new Ammo.btVector3(moveX, moveY, moveZ);
     // resultantImpulse.op_mul(scalingFactor);
-    // let physicsBody = ballObject.userData.physicsBody;
+
+    // let physicsBody = model.userData.physicsBody;
     // physicsBody.setLinearVelocity(resultantImpulse);
   }
 
@@ -1095,9 +1104,9 @@ Ammo().then((Ammo) => {
 
     startButton.removeEventListener('click', startButtonEventListener);
     document.addEventListener('click', launchClickPosition);
-    // createBeachBall();
-    // createGalaxyBall();
-    // createAnim();
+    createBeachBall();
+    createGalaxyBall();
+    createAnim();
 
     setTimeout(() => {
       document.addEventListener('mousemove', launchHover);
@@ -1131,8 +1140,8 @@ Ammo().then((Ammo) => {
   }
 
     //check to see if ball is on text to rotate camera
-    // if(mixer) 
-    // rotateCamera(model);
+    if(mixer) 
+    rotateCamera(model);
   }
 
   //document loading

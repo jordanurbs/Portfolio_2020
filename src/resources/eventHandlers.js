@@ -13,22 +13,22 @@ function handleKeyDown(event) {
   switch (keyCode) {
     case 87: //W: FORWARD
     case 38: //up arrow
-      moveDirection.forward = 1;
+      moveDirection.forward = 0.4;
       break;
 
     case 83: //S: BACK
     case 40: //down arrow
-      moveDirection.back = 1;
+      moveDirection.back = 0.4;
       break;
 
     case 65: //A: LEFT
     case 37: //left arrow
-      moveDirection.left = 1;
+      moveDirection.left = 0.4;
       break;
 
     case 68: //D: RIGHT
     case 39: //right arrow
-      moveDirection.right = 1;
+      moveDirection.right = 0.4;
       break;
   }
 }

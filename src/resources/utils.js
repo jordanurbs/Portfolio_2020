@@ -10,7 +10,7 @@ export function rotateCamera(ballPosition) {
   var camPos = new THREE.Vector3(
     camera.position.x,
     camera.position.y,
-    camera.position.z
+    camera.position.z 
   );
 
   // target camera position
