@@ -235,7 +235,7 @@ Ammo().then((Ammo) => {
       action = mixer.clipAction(clip);
       action.play();
        // console.log(clips);
-    
+  
     });
      // action.play();
     // rotateCamera(gltf_scene);
@@ -262,7 +262,7 @@ Ammo().then((Ammo) => {
     // scene.add(ball);
 
 
-    //Ammojs Section
+    // Ammojs Section
     // let transform = new Ammo.btTransform();
     // transform.setIdentity();
     // transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
