@@ -1021,11 +1021,11 @@ Ammo().then((Ammo) => {
   }
 
   function moveBall() {
-
     let scalingFactor = 20;
     let moveX = moveDirection.right - moveDirection.left;
     let moveZ = moveDirection.back - moveDirection.forward;
     let moveY = 0;
+
     if(mixer)
     {
       if (model.position.y < 2.01) {
@@ -1037,7 +1037,7 @@ Ammo().then((Ammo) => {
         moveZ = moveDirection.back - moveDirection.forward;
         moveY = -0.25;
       }
-
+      action.paused=true
   }
   
     // no movement
@@ -1045,6 +1045,59 @@ Ammo().then((Ammo) => {
    
     model.position.x += moveX;
     model.position.z += moveZ;
+    
+
+
+    //rotations of model
+    //rotate to right
+    if(moveX>0)
+    {
+      action.paused=false;
+      model.rotation.y = Math.PI / 2;
+    }
+    //rotate to left
+    if(moveX<0)
+    {
+      action.paused=false;
+      model.rotation.y = Math.PI / 2 * -1;
+    }
+    //rotate to bottom
+    if(moveZ>0)
+    {
+      action.paused=false;
+      model.rotation.y = Math.PI / 90;
+    }
+    //rotate to top
+    if(moveZ<0)
+    {
+      action.paused=false;
+      model.rotation.y = Math.PI;
+    }
+    //rotate to bottom right
+    if(moveX>0 && moveZ>0)
+    {
+      action.paused=false;
+      model.rotation.y = Math.PI / 4;
+    }
+    //rotate to top right
+    if(moveX>0 && moveZ<0)
+    {
+      action.paused=false;
+      model.rotation.y = 29*Math.PI /36;
+    }
+    //rotate to top left
+    if(moveX<0 && moveZ<0)
+    {
+      action.paused=false;
+      model.rotation.y = 5*Math.PI /4;
+    }
+    //rotate to bottom left
+    if(moveX<0 && moveZ>0)
+    {
+      action.paused=false;
+      model.rotation.y = 7*Math.PI /4;
+    }
+    
 
     // let resultantImpulse = new Ammo.btVector3(moveX, moveY, moveZ);
     // resultantImpulse.op_mul(scalingFactor);
