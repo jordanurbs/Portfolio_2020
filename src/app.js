@@ -1,6 +1,9 @@
 import * as THREE from 'three';
 import { WEBGL } from './WebGL';
 import * as Ammo from './builds/ammo';
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import {
   billboardTextures,
   boxTexture,
@@ -75,6 +78,7 @@ Ammo().then((Ammo) => {
 
   //Ammo Dynamic bodies for ball
   let ballObject = null;
+  let ballObject2 = null;
   const STATE = { DISABLE_DEACTIVATION: 4 };
 
   //default transform object
@@ -82,6 +86,17 @@ Ammo().then((Ammo) => {
 
   // list of hyperlink objects
   var objectsWithLinks = [];
+
+  // greenhodly global
+  let greenhodly = null;
+  let model;
+  let model2;
+  let gltf_scene;
+  var mixer;
+  var action;
+  
+  
+  
 
   //function to create physics world with Ammo.js
   function createPhysicsWorld() {
@@ -171,28 +186,203 @@ Ammo().then((Ammo) => {
     let radius = 2;
     let quat = { x: 0, y: 0, z: 0, w: 1 };
     let mass = 3;
+    
+    // const controls = new OrbitControls( camera, renderer.domElement );
+    // controls.update();
+    // const loader = new GLTFLoader();
+    // loader.setPath('./src/jsm/GreenHodly/');
+    // loader.load('Greenglb2.glb', (gltf) => {
+      
+    //   gltf_scene = gltf.scene;
+    //   // var action = mixer.clipAction( gltf.animations[ 0 ] );
+    //   // console.log( action );
+    //    gltf_scene.traverse( child=>  {
 
-    var marble_loader = new THREE.TextureLoader(manager);
-    var marbleTexture = marble_loader.load('./src/jsm/earth.jpg');
-    marbleTexture.wrapS = marbleTexture.wrapT = THREE.RepeatWrapping;
-    marbleTexture.repeat.set(1, 1);
-    marbleTexture.anisotropy = 1;
-    marbleTexture.encoding = THREE.sRGBEncoding;
+    //     if ( child instanceof THREE.Mesh ) {
+
+    //         child.geometry.computeBoundingBox()
+    //         child.castShadow = true;
+    //         child.receiveShadow = true;
+            
+
+    //     } 
+    //   });  
+    //   gltf_scene.scale.set(6,6,6);
+    //   gltf_scene.position.set( pos.x, pos.y, pos.z );
+      // scene.add(gltf_scene);
+      // console.log(gltf);
+      
+    
+    const anim = new GLTFLoader();
+    anim.setPath('./src/jsm/GreenHodly/');
+    anim.load('GreenHodlyWalking.glb', (anim) => {
+      model = anim.scene;
+      model.traverse( child=>  {
+        if ( child instanceof THREE.Mesh ) {
+
+            child.geometry.computeBoundingBox();
+            child.geometry.computeBoundingSphere();
+            child.castShadow = true;
+            child.receiveShadow = true;
+        } 
+      });
+      model.scale.set(1,1,1);
+      model.position.set(pos.x,pos.y,pos.z);
+      scene.add(model);
+      mixer = new THREE.AnimationMixer(model);
+      const clips = anim.animations;
+      const clip = THREE.AnimationClip.findByName(clips,'Walk');
+      action = mixer.clipAction(clip);
+      action.play();
+       // console.log(clips);
+  
+    });
+     // action.play();
+    // rotateCamera(gltf_scene);
+    
+    // gltf_scene.traverse((o)=> {console.log(o.name);}) 
+    // });
+
+    
 
     //threeJS Section
-    let ball = (ballObject = new THREE.Mesh(
-      new THREE.SphereGeometry(radius, 32, 32),
-      new THREE.MeshLambertMaterial({ map: marbleTexture })
-    ));
+    
 
-    ball.geometry.computeBoundingSphere();
-    ball.geometry.computeBoundingBox();
+    // let ball = (ballObject = new THREE.Mesh(
+    //    new THREE.SphereGeometry(radius, 32, 32),
+    //    new THREE.MeshLambertMaterial({  })
+    //  ));
+
+    // ball.castShadow = true;
+    // ball.receiveShadow = true;
+    // ball.position.set(pos.x, pos.y, pos.z);
+    // ball.geometry.computeBoundingSphere();
+    // ball.geometry.computeBoundingBox();
+
+    // scene.add(ball);
+
+
+    // Ammojs Section
+    // let transform = new Ammo.btTransform();
+    // transform.setIdentity();
+    // transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
+    // transform.setRotation(
+    //   new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
+    // );
+    // let motionState = new Ammo.btDefaultMotionState(transform);
+
+    // let colShape = new Ammo.btSphereShape(radius);
+    // colShape.setMargin(0.05);
+
+    // let localInertia = new Ammo.btVector3(0, 0, 0);
+    // colShape.calculateLocalInertia(mass, localInertia);
+
+    // let rbInfo = new Ammo.btRigidBodyConstructionInfo(
+    //   mass,
+    //   motionState,
+    //   colShape,
+    //   localInertia
+    // );
+    // let body = new Ammo.btRigidBody(rbInfo);
+    // //body.setFriction(4);
+    // body.setRollingFriction(10);
+
+    // //set ball friction
+
+    // //once state is set to disable, dynamic interaction no longer calculated
+    // body.setActivationState(STATE.DISABLE_DEACTIVATION);
+
+    // physicsWorld.addRigidBody(
+    //   body //collisionGroupRedBall, collisionGroupGreenBall | collisionGroupPlane
+    // );
+
+    // model.userData.physicsBody = body;
+    // // ballObject.userData.physicsBody = body;
+  
+
+    // // rigidBodies.push(ball);
+    // rigidBodies.push(model);
+    
+  }
+
+  //create animation
+  function createAnim()
+  {
+    let pos = { x: 20, y: 30, z: 0 };
+    let radius = 2;
+    let quat = { x: 0, y: 0, z: 0, w: 1 };
+    let mass = 20;
+
+    
+    const loader = new GLTFLoader();
+    loader.setPath('./src/jsm/GreenHodly/');
+    loader.load('Greenglb2.glb', (gltf) => {
+      greenhodly = gltf.scene;
+      greenhodly.position.set(20, 30, 0 );
+      greenhodly.scale.set(1, 1, 1 );
+      scene.add(greenhodly);
+      
+      //threeJS Section 
+
+      //Ammojs Section
+    let transform = new Ammo.btTransform();
+    transform.setIdentity();
+    transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
+    transform.setRotation(
+      new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w)
+    );
+    let motionState = new Ammo.btDefaultMotionState(transform);
+
+    let colShape = new Ammo.btSphereShape(radius);
+    colShape.setMargin(0.05);
+
+    let localInertia = new Ammo.btVector3(0, 0, 0);
+    colShape.calculateLocalInertia(mass, localInertia);
+
+    let rbInfo = new Ammo.btRigidBodyConstructionInfo(
+      mass,
+      motionState,
+      colShape,
+      localInertia
+    );
+    let body = new Ammo.btRigidBody(rbInfo);
+
+    body.setRollingFriction(1);
+    physicsWorld.addRigidBody(body);
+
+    greenhodly.userData.physicsBody = body;
+    rigidBodies.push(greenhodly);
+
+    
+    });
+
+    
+  }
+
+  //create beach ball Mesh
+  function createBeachBall() {
+    let pos = { x: 20, y: 30, z: 0 };
+    let radius = 2;
+    let quat = { x: 0, y: 0, z: 0, w: 1 };
+    let mass = 20;
+
+    //import beach ball texture
+    var texture_loader = new THREE.TextureLoader(manager);
+    var beachTexture = texture_loader.load('./src/jsm/BeachBallColor.jpg');
+    beachTexture.wrapS = beachTexture.wrapT = THREE.RepeatWrapping;
+    beachTexture.repeat.set(1, 1);
+    beachTexture.anisotropy = 1;
+    beachTexture.encoding = THREE.sRGBEncoding;
+
+    //threeJS Section
+    let ball = new THREE.Mesh(
+      new THREE.SphereGeometry(radius, 32, 32),
+      new THREE.MeshLambertMaterial({ map: beachTexture })
+    );
 
     ball.position.set(pos.x, pos.y, pos.z);
-
     ball.castShadow = true;
     ball.receiveShadow = true;
-
     scene.add(ball);
 
     //Ammojs Section
@@ -217,27 +407,16 @@ Ammo().then((Ammo) => {
       localInertia
     );
     let body = new Ammo.btRigidBody(rbInfo);
-    //body.setFriction(4);
-    body.setRollingFriction(10);
 
-    //set ball friction
-
-    //once state is set to disable, dynamic interaction no longer calculated
-    body.setActivationState(STATE.DISABLE_DEACTIVATION);
-
-    physicsWorld.addRigidBody(
-      body //collisionGroupRedBall, collisionGroupGreenBall | collisionGroupPlane
-    );
+    body.setRollingFriction(1);
+    physicsWorld.addRigidBody(body);
 
     ball.userData.physicsBody = body;
-    ballObject.userData.physicsBody = body;
-
     rigidBodies.push(ball);
-    rigidBodies.push(ballObject);
   }
 
-  //create beach ball Mesh
-  function createBeachBall() {
+  //create another ball
+  function createGalaxyBall() {
     let pos = { x: 20, y: 30, z: 0 };
     let radius = 2;
     let quat = { x: 0, y: 0, z: 0, w: 1 };
@@ -245,7 +424,7 @@ Ammo().then((Ammo) => {
 
     //import beach ball texture
     var texture_loader = new THREE.TextureLoader(manager);
-    var beachTexture = texture_loader.load('./src/jsm/BeachBallColor.jpg');
+    var beachTexture = texture_loader.load('./src/jsm/galaxy.jpg');
     beachTexture.wrapS = beachTexture.wrapT = THREE.RepeatWrapping;
     beachTexture.repeat.set(1, 1);
     beachTexture.anisotropy = 1;
@@ -847,23 +1026,84 @@ Ammo().then((Ammo) => {
     let moveZ = moveDirection.back - moveDirection.forward;
     let moveY = 0;
 
-    if (ballObject.position.y < 2.01) {
-      moveX = moveDirection.right - moveDirection.left;
-      moveZ = moveDirection.back - moveDirection.forward;
-      moveY = 0;
-    } else {
-      moveX = moveDirection.right - moveDirection.left;
-      moveZ = moveDirection.back - moveDirection.forward;
-      moveY = -0.25;
-    }
-
+    if(mixer)
+    {
+      if (model.position.y < 2.01) {
+        moveX = moveDirection.right - moveDirection.left;
+        moveZ = moveDirection.back - moveDirection.forward;
+        moveY = 0;
+      } else {
+        moveX = moveDirection.right - moveDirection.left;
+        moveZ = moveDirection.back - moveDirection.forward;
+        moveY = -0.25;
+      }
+      action.paused=true
+  }
+  
     // no movement
     if (moveX == 0 && moveY == 0 && moveZ == 0) return;
+   
+    model.position.x += moveX;
+    model.position.z += moveZ;
+    
 
-    let resultantImpulse = new Ammo.btVector3(moveX, moveY, moveZ);
-    resultantImpulse.op_mul(scalingFactor);
-    let physicsBody = ballObject.userData.physicsBody;
-    physicsBody.setLinearVelocity(resultantImpulse);
+
+    //rotations of model
+    //rotate to right
+    if(moveX>0)
+    {
+      action.paused=false;
+      model.rotation.y = Math.PI / 2;
+    }
+    //rotate to left
+    if(moveX<0)
+    {
+      action.paused=false;
+      model.rotation.y = Math.PI / 2 * -1;
+    }
+    //rotate to bottom
+    if(moveZ>0)
+    {
+      action.paused=false;
+      model.rotation.y = Math.PI / 90;
+    }
+    //rotate to top
+    if(moveZ<0)
+    {
+      action.paused=false;
+      model.rotation.y = Math.PI;
+    }
+    //rotate to bottom right
+    if(moveX>0 && moveZ>0)
+    {
+      action.paused=false;
+      model.rotation.y = Math.PI / 4;
+    }
+    //rotate to top right
+    if(moveX>0 && moveZ<0)
+    {
+      action.paused=false;
+      model.rotation.y = 29*Math.PI /36;
+    }
+    //rotate to top left
+    if(moveX<0 && moveZ<0)
+    {
+      action.paused=false;
+      model.rotation.y = 5*Math.PI /4;
+    }
+    //rotate to bottom left
+    if(moveX<0 && moveZ>0)
+    {
+      action.paused=false;
+      model.rotation.y = 7*Math.PI /4;
+    }
+    
+
+    // let resultantImpulse = new Ammo.btVector3(moveX, moveY, moveZ);
+    // resultantImpulse.op_mul(scalingFactor);
+
+    // let physicsBody = model.userData.physicsBody;
+    // physicsBody.setLinearVelocity(resultantImpulse);
   }
 
   function renderFrame() {
@@ -876,6 +1116,9 @@ Ammo().then((Ammo) => {
     if (!isTouchscreenDevice())
       if (document.hasFocus()) {
         moveBall();
+        if(mixer){
+        mixer.update(deltaTime);
+        }
       } else {
         moveDirection.forward = 0;
         moveDirection.back = 0;
@@ -884,6 +1127,9 @@ Ammo().then((Ammo) => {
       }
     else {
       moveBall();
+      if(mixer){
+        mixer.update(deltaTime);
+        }
     }
 
     updatePhysics(deltaTime);
@@ -912,6 +1158,8 @@ Ammo().then((Ammo) => {
     startButton.removeEventListener('click', startButtonEventListener);
     document.addEventListener('click', launchClickPosition);
     createBeachBall();
+    createGalaxyBall();
+    createAnim();
 
     setTimeout(() => {
       document.addEventListener('mousemove', launchHover);
@@ -937,13 +1185,16 @@ Ammo().then((Ammo) => {
     }
 
     //check to see if ball escaped the plane
-    if (ballObject.position.y < -50) {
-      scene.remove(ballObject);
+    if(mixer) {
+    if (model.position.y < -50) {
+      scene.remove(model);
       createBall();
     }
+  }
 
     //check to see if ball is on text to rotate camera
-    rotateCamera(ballObject);
+    if(mixer) 
+    rotateCamera(model);
   }
 
   //document loading
@@ -984,6 +1235,7 @@ Ammo().then((Ammo) => {
 
   //initialize world and begin
   function start() {
+
     createWorld();
     createPhysicsWorld();
 
